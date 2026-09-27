@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>日常账本自动测试</title>
+    <style>
+      body { max-width: 720px; margin: 48px auto; padding: 0 20px; font: 16px/1.6 system-ui, sans-serif; color: #173c35; background: #f8f5ed; }
+      h1 { margin-bottom: 4px; } #summary { font-weight: 700; font-size: 20px; } ul { padding: 0; list-style: none; } li { margin: 10px 0; padding: 12px 16px; border-radius: 8px; background: white; box-shadow: 0 1px 3px #173c3518; } .pass { color: #176b4d; } .fail { color: #b42318; }
+    </style>
+  </head>
+  <body>
+    <h1>日常账本自动测试</h1>
+    <p id="summary" aria-live="polite">正在运行测试…</p>
+    <ul id="results"></ul>
+    <script src="app.js"></script>
+    <script>
+      (() => {
+        const { calculateMonthlyTotal, isValidAmount } = window.LedgerApp;
+        const month = "2026-09";
+        const lastMonth = "2026-08";
+        const results = [];
+        const test = (description, condition) => results.push({ description, passed: Boolean(condition) });
+
+        test("没有任何记录时，本月合计是 0", calculateMonthlyTotal([], month) === 0);
+        test("本月有 12.5 和 0.1 两笔，合计是 12.6（没有浮点数精度误差）", calculateMonthlyTotal([{ amount: 12.5, date: month + "-01" }, { amount: 0.1, date: month + "-02" }], month) === 12.6);
+        test("上个月的记录不算进本月合计", calculateMonthlyTotal([{ amount: 99, date: lastMonth + "-30" }, { amount: 12.5, date: month + "-01" }], month) === 12.5);
+        test("金额是 -50，判定为不合法", !isValidAmount(-50));
+        test("金额不填，判定为不合法", !isValidAmount(""));
+        test("金额是 0，判定为不合法", !isValidAmount(0));
+        test("金额是 12.5，判定为合法", isValidAmount(12.5));
+
+        const passed = results.filter((result) => result.passed).length;
+        document.querySelector("#summary").textContent = `通过 ${passed} 条 / 共 ${results.length} 条`;
+        document.querySelector("#results").innerHTML = results.map((result) => `<li class="${result.passed ? "pass" : "fail"}">${result.description}：${result.passed ? "✅ 通过" : "❌ 失败"}</li>`).join("");
+      })();
+    </script>
+  </body>
+</html>

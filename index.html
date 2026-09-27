@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="简洁的本地个人记账工具" />
+    <title>日常账本</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231a584c'/%3E%3Cpath d='M9 11h14M11 8v6m10-6v6M10 17h12v7H10z' fill='none' stroke='%23f8f5ed' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">个人账本</p>
+          <h1>日常账本</h1>
+        </div>
+        <button class="add-button" id="open-add" type="button" aria-haspopup="dialog">
+          <span aria-hidden="true">＋</span> 新增记账
+        </button>
+      </header>
+
+      <section class="month-nav" aria-label="查看月份">
+        <button id="previous-month" type="button" aria-label="查看上个月">←</button>
+        <h2 id="month-title">本月</h2>
+        <button id="next-month" type="button" aria-label="查看下个月">→</button>
+      </section>
+
+      <section class="summary-grid" aria-label="本月汇总">
+        <article class="summary-card expense"><p>本月支出</p><strong id="total-expense">¥0.00</strong></article>
+        <article class="summary-card income"><p>本月收入</p><strong id="total-income">¥0.00</strong></article>
+        <article class="summary-card balance"><p>本月结余</p><strong id="total-balance">¥0.00</strong></article>
+      </section>
+
+      <section class="panel trend-panel" aria-labelledby="trend-heading">
+        <div class="section-heading">
+          <div><p class="eyebrow">按天查看</p><h2 id="trend-heading">本月每日支出趋势</h2></div>
+          <div class="segmented" role="group" aria-label="趋势类型">
+            <button class="active" data-trend="expense" type="button">支出</button>
+            <button data-trend="income" type="button">收入</button>
+          </div>
+        </div>
+        <div id="chart-area" class="chart-area" aria-live="polite"></div>
+      </section>
+
+      <section class="panel records-panel" aria-labelledby="records-heading">
+        <div class="section-heading">
+          <div><p class="eyebrow">按日期排列</p><h2 id="records-heading">账目明细</h2></div>
+          <span id="record-count" class="record-count">0 笔</span>
+        </div>
+        <div id="records-list" class="records-list"></div>
+      </section>
+    </main>
+
+    <button class="floating-add" id="open-add-float" type="button" aria-label="新增记账">＋</button>
+
+    <dialog id="record-dialog" class="record-dialog" aria-labelledby="dialog-title">
+      <form id="record-form" novalidate>
+        <div class="dialog-header"><div><p class="eyebrow" id="dialog-kicker">记录一笔</p><h2 id="dialog-title">新增记账</h2></div><button class="icon-button" id="close-dialog" type="button" aria-label="关闭">×</button></div>
+        <input id="record-id" type="hidden" />
+        <fieldset class="type-picker"><legend>收支类型</legend><label><input type="radio" name="type" value="expense" checked /> <span>支出</span></label><label><input type="radio" name="type" value="income" /> <span>收入</span></label></fieldset>
+        <div class="form-grid">
+          <label class="field amount-field">金额 <span aria-hidden="true">*</span><div class="currency-input"><span>¥</span><input id="amount" name="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required /></div></label>
+          <label class="field">日期 <span aria-hidden="true">*</span><input id="date" name="date" type="date" required /></label>
+          <label class="field">分类 <span aria-hidden="true">*</span><select id="category" name="category" required></select></label>
+          <label class="field">支付方式 <span aria-hidden="true">*</span><select id="payment-method" name="paymentMethod" required></select></label>
+          <label class="field full-width">备注 <span class="optional">（可选）</span><input id="note" name="note" type="text" maxlength="80" placeholder="例如：午餐" /></label>
+        </div>
+        <p id="form-error" class="form-error" role="alert"></p>
+        <div class="dialog-actions"><button class="secondary-button" id="cancel-dialog" type="button">取消</button><button class="primary-button" type="submit">保存账目</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="delete-dialog" class="confirm-dialog" aria-labelledby="delete-title">
+      <div><p class="eyebrow">删除账目</p><h2 id="delete-title">确认删除这笔账目？</h2><p>删除后无法恢复，汇总和趋势会立即更新。</p><div class="dialog-actions"><button class="secondary-button" id="cancel-delete" type="button">保留账目</button><button class="danger-button" id="confirm-delete" type="button">确认删除</button></div></div>
+    </dialog>
+    <script src="app.js"></script>
+  </body>
+</html>
